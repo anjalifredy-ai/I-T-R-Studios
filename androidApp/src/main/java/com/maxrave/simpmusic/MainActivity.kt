@@ -115,7 +115,7 @@ class MainActivity : AppCompatActivity() {
         unloadKoinModules(viewModelModule)
         loadKoinModules(viewModelModule)
         VersionManager.initialize()
-        checkForUpdate()
+        // checkForUpdate()
         if (viewModel.recreateActivity.value || viewModel.isServiceRunning) {
             viewModel.activityRecreateDone()
         } else {
