@@ -62,14 +62,26 @@ jobs:
           echo "BUILD_TOOL_VERSION=$BUILD_TOOL_VERSION" >> $GITHUB_ENV
           echo Last build tool version is: $BUILD_TOOL_VERSION
 
+      - name: Generate signing key
+        run: |
+          keytool -genkey -v -keystore release.keystore -alias releasekey \
+          -keyalg RSA -keysize 2048 -validity 10000 \
+          -storepass rikky123456 -keypass rikky123456 \
+          -dname "CN=Rikky, OU=Dev, O=RikkY, L=City, S=State, C=IN"
+
+      - name: Encode keystore to base64
+        id: encode_key
+        run: |
+          echo "key=$(base64 -w 0 release.keystore)" >> $GITHUB_OUTPUT
+
       - uses: kevin-david/zipalign-sign-android-release@v2
         id: sign_app
         with:
           releaseDirectory: androidApp/build/outputs/apk/release
-          signingKeyBase64: ${{ secrets.SIGNING_KEY }}
-          alias: ${{ secrets.ALIAS }}
-          keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
-          keyPassword: ${{ secrets.KEY_PASSWORD }}
+          signingKeyBase64: ${{ steps.encode_key.outputs.key }}
+          alias: releasekey
+          keyStorePassword: rikky123456
+          keyPassword: rikky123456
           zipAlign: true
         env:
             BUILD_TOOLS_VERSION: ${{ env.BUILD_TOOL_VERSION }}
